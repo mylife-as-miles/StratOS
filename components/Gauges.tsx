@@ -17,9 +17,9 @@ export const FuelGauge: React.FC<GaugeProps> = ({ value, label, unit = '%', colo
   ];
 
   return (
-    <div className="w-full flex flex-col items-center justify-center relative rounded-lg p-2" style={{ height: '150px' }}>
+    <div className="w-full flex flex-col items-center justify-center relative rounded-lg p-2" style={{ height: '160px' }}>
       <div className="w-full h-full relative">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <Pie
               data={data}

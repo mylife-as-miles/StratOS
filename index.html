@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StratOS | Mission Control</title>
     <!-- 
-      ENVIRONMENT NOTE: Runtime Tailwind CDN is used here to ensure immediate rendering in this preview environment. 
-      For production deployments, this would be replaced by a build step (PostCSS/Tailwind CLI) to a static CSS file.
+      ENVIRONMENT NOTE: Runtime Tailwind CDN is used here to ensure immediate rendering. 
     -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -39,11 +38,13 @@
 <script type="importmap">
 {
   "imports": {
-    "recharts": "https://esm.sh/recharts@^3.6.0",
-    "react/": "https://esm.sh/react@^19.2.3/",
-    "react": "https://esm.sh/react@^19.2.3",
-    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
-    "react-dom/": "https://esm.sh/react-dom@^19.2.3/"
+    "react": "https://esm.sh/react@19.0.0",
+    "react-dom": "https://esm.sh/react-dom@19.0.0",
+    "react-dom/client": "https://esm.sh/react-dom@19.0.0/client",
+    "recharts": "https://esm.sh/recharts@2.15.0?external=react,react-dom",
+    "@google/genai": "https://esm.sh/@google/genai@1.34.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/"
   }
 }
 </script>
@@ -51,5 +52,7 @@
 <body class="bg-[#050505] text-[#00f3ff] selection:bg-cyan-500 selection:text-black">
     <div id="root"></div>
     <div class="scanline"></div>
+    <!-- Explicit module entry point to fix blank page on static hosting -->
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>

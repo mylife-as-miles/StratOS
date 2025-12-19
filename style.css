@@ -10,9 +10,14 @@ body {
   background-color: #050505;
   color: #00f3ff;
   font-family: 'Roboto Mono', monospace;
-  overflow: hidden;
+  overflow-x: hidden;
   height: 100vh;
-  width: 100vw;
+}
+
+@media (min-width: 768px) {
+  body {
+    overflow: hidden;
+  }
 }
 
 .font-orbitron {
@@ -20,7 +25,7 @@ body {
 }
 
 .glass-panel {
-  background: rgba(0, 0, 0, 0.8);
+  background: rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(0, 243, 255, 0.15);
   box-shadow: 0 0 30px rgba(0, 243, 255, 0.05);
@@ -63,6 +68,7 @@ body {
 /* Custom scrollbar */
 .custom-scrollbar::-webkit-scrollbar {
   width: 5px;
+  height: 5px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.3);

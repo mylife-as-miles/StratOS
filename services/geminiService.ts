@@ -1,6 +1,6 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { Ticket, AIStrategy } from "../types";
+import { Ticket, AIStrategy } from "../types.ts";
 
 export async function getRaceStrategy(tickets: Ticket[]): Promise<AIStrategy> {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
