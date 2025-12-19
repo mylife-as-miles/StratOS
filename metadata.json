@@ -1,0 +1,7 @@
+{
+  "name": "StratOS: The Pit Wall",
+  "description": "A high-stakes, cyberpunk F1 telemetry dashboard for engineering teams, transforming Jira metrics into a racing strategy command center.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
