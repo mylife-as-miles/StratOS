@@ -6,6 +6,8 @@ import CyberCard from './components/CyberCard.tsx';
 import TrackMap from './components/TrackMap.tsx';
 import { FuelGauge, RPMGauge } from './components/Gauges.tsx';
 import { getRaceStrategy } from './services/geminiService.ts';
+import { MockTelemetrySocket } from './services/telemetrySocket.ts';
+import DataExport from './components/DataExport.tsx';
 
 type FilterType = 'All' | 'Blocked' | 'In Progress' | 'Done';
 
@@ -16,55 +18,58 @@ const App: React.FC = () => {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [filter, setFilter] = useState<FilterType>('All');
   const [isLive, setIsLive] = useState(true);
-  const [logs, setLogs] = useState<{ id: number; msg: string; type: 'info' | 'warn'; time: string }[]>([]);
+  const [logs, setLogs] = useState<{ id: number; msg: string; type: 'info' | 'warn' | 'error'; time: string }[]>([]);
+  
+  // Network Stats
+  const [netStats, setNetStats] = useState({ ping: 0, packetLoss: 0, connected: false });
   
   const logIdCounter = useRef(0);
+  const socketRef = useRef<MockTelemetrySocket | null>(null);
 
-  const addLog = (msg: string, type: 'info' | 'warn' = 'info') => {
+  const addLog = (msg: string, type: 'info' | 'warn' | 'error' = 'info') => {
     const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
     setLogs(prev => [{ id: logIdCounter.current++, msg, type, time }, ...prev].slice(0, 15));
   };
 
-  // Simulation Loop
+  // Initialize Socket Connection
   useEffect(() => {
-    if (!isLive) return;
+    // Instantiate socket service
+    const socket = new MockTelemetrySocket(MOCK_TICKETS);
+    socketRef.current = socket;
 
-    const interval = setInterval(() => {
-      setTickets(prevTickets => {
-        // Pick a random ticket to update
-        const ticketToUpdateIndex = Math.floor(Math.random() * prevTickets.length);
-        const newTickets = [...prevTickets];
-        const ticket = { ...newTickets[ticketToUpdateIndex] };
+    // Subscriptions
+    socket.onData((newTickets) => {
+      setTickets(newTickets);
+    });
 
-        // Randomly change status, toggle block, or increment age
-        const rand = Math.random();
-        
-        if (rand < 0.1) {
-          // Toggle blockage
-          ticket.isBlocked = !ticket.isBlocked;
-          addLog(`${ticket.key} ${ticket.isBlocked ? 'REPORTING MECHANICAL FAILURE (BLOCKED)' : 'CLEAR OF BLOCKAGE'}`, ticket.isBlocked ? 'warn' : 'info');
-        } else if (rand < 0.25 && !ticket.isBlocked) {
-          // Progress status
-          const statusFlow = [TicketStatus.BACKLOG, TicketStatus.IN_PROGRESS, TicketStatus.QA_REVIEW, TicketStatus.DONE];
-          const currentIndex = statusFlow.indexOf(ticket.status);
-          if (currentIndex < statusFlow.length - 1) {
-            ticket.status = statusFlow[currentIndex + 1];
-            addLog(`${ticket.key} ADVANCING TO ${ticket.status.replace('_', ' ')}`, 'info');
-          }
-        } else if (rand < 0.3) {
-          // Increment age (simulating time passing)
-          ticket.ageDays += 1;
-          if (ticket.ageDays > 10) {
-            addLog(`CRITICAL DEGRADATION ON ${ticket.key}: ${ticket.ageDays} DAYS OLD`, 'warn');
-          }
-        }
+    socket.onLog((msg, type) => {
+      addLog(msg, type);
+    });
 
-        newTickets[ticketToUpdateIndex] = ticket;
-        return newTickets;
-      });
-    }, 4000); // Update every 4 seconds
+    socket.onStats((stats) => {
+      setNetStats(stats);
+    });
 
-    return () => clearInterval(interval);
+    // Initial Connect
+    if (isLive) {
+      socket.connect();
+    }
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
+
+  // Handle Live/Pause toggle
+  useEffect(() => {
+    if (!socketRef.current) return;
+    
+    if (isLive) {
+      socketRef.current.connect();
+    } else {
+      socketRef.current.disconnect();
+      addLog("SIMULATION PAUSED BY USER", 'warn');
+    }
   }, [isLive]);
 
   const filteredTickets = useMemo(() => {
@@ -99,7 +104,7 @@ const App: React.FC = () => {
       setStrategy(res);
       setIsLoading(false);
       addLog("AI STRATEGY RE-CALCULATED BY ROVO AGENT", 'info');
-    }, 15000); // Update AI strategy every 15 seconds or when tickets settle
+    }, 15000); 
 
     return () => clearTimeout(timer);
   }, [tickets]);
@@ -130,7 +135,8 @@ const App: React.FC = () => {
           </h1>
           <div className="px-2 py-1 bg-cyan-900/30 border border-cyan-500 text-[9px] md:text-[10px] font-bold rounded flex items-center gap-2">
             PIT WALL v2.5.4
-            {isLive && <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_#ef4444]"></span>}
+            {netStats.connected && <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse shadow-[0_0_8px_#22c55e]"></span>}
+            {!netStats.connected && <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_#ef4444]"></span>}
           </div>
         </div>
         <div className="flex items-center gap-4 md:gap-8 text-[10px] md:text-xs font-orbitron">
@@ -140,11 +146,11 @@ const App: React.FC = () => {
           >
             {isLive ? 'LIVE TELEMETRY' : 'PAUSED'}
           </button>
-          <div className="flex flex-col items-center sm:items-end">
+          <div className="hidden sm:flex flex-col items-center sm:items-end">
             <span className="text-white/40 uppercase text-[8px]">Session Time</span>
             <span className="text-cyan-400 font-mono">00:42:15.892</span>
           </div>
-          <div className="flex flex-col items-center sm:items-end">
+          <div className="hidden sm:flex flex-col items-center sm:items-end">
             <span className="text-white/40 uppercase text-[8px]">Circuit</span>
             <span className="text-cyan-400">CLOUD-SPRINT-04</span>
           </div>
@@ -211,6 +217,12 @@ const App: React.FC = () => {
                 </div>
               </div>
             ))}
+            
+            <div className="w-[1px] h-6 bg-white/10 mx-2"></div>
+            
+            {/* NEW: Data Export Component */}
+            <DataExport tickets={tickets} />
+            
             <div className="flex-1 hidden sm:block"></div>
             <div className="text-[8px] md:text-[9px] font-orbitron text-white/20 uppercase tracking-widest mr-2 hidden sm:block">
               Telemetric Overlay
@@ -270,9 +282,9 @@ const App: React.FC = () => {
           <div className="glass-panel border-t-2 border-cyan-500 p-2 md:p-3 h-24 md:h-32 overflow-y-auto custom-scrollbar flex-shrink-0">
             <h4 className="font-orbitron text-[8px] md:text-[10px] text-cyan-400 mb-1 md:mb-2 uppercase tracking-widest">Team Radio / Live Feed</h4>
             <div className="space-y-1 text-[9px] md:text-[10px] font-mono">
-              {logs.length === 0 && <p className="opacity-40 italic">Awaiting telemetry signal...</p>}
+              {!netStats.connected && logs.length === 0 && <p className="opacity-40 italic">Awaiting telemetry signal...</p>}
               {logs.map(log => (
-                <p key={log.id} className={log.type === 'warn' ? 'text-yellow-500 animate-pulse' : 'text-cyan-50/80'}>
+                <p key={log.id} className={log.type === 'warn' ? 'text-yellow-500 animate-pulse' : log.type === 'error' ? 'text-red-500 font-bold' : 'text-cyan-50/80'}>
                   <span className="text-cyan-500/60 font-bold mr-2">[{log.time}]</span>
                   {log.msg}
                 </p>
@@ -368,9 +380,12 @@ const App: React.FC = () => {
       </div>
 
       <footer className="h-auto md:h-6 py-2 md:py-0 flex flex-col md:flex-row justify-between items-center text-[7px] md:text-[8px] font-orbitron text-white/20 uppercase tracking-[0.2em] flex-shrink-0 gap-2">
-        <div>Uplink: <span className="text-green-500 animate-pulse">Active</span></div>
+        <div className="flex items-center gap-4">
+          <span>Uplink: <span className={netStats.connected ? "text-green-500 animate-pulse" : "text-red-500"}>{netStats.connected ? 'ACTIVE' : 'OFFLINE'}</span></span>
+          <span className="hidden sm:inline">PING: <span className="text-cyan-400">{netStats.ping}ms</span></span>
+          <span className="hidden sm:inline">LOSS: <span className={netStats.packetLoss > 0 ? "text-red-500 animate-pulse" : "text-cyan-400"}>{netStats.packetLoss.toFixed(1)}%</span></span>
+        </div>
         <div className="flex flex-wrap justify-center gap-3 md:gap-4">
-          <span className="hidden sm:inline">Packet Loss: 0.00%</span>
           <span className={isLive ? 'text-green-500/40' : 'text-red-500/40'}>
             Simulation: {isLive ? 'Running' : 'Paused'}
           </span>
