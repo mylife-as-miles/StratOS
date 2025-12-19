@@ -1,0 +1,82 @@
+
+/* 
+  Global Styles & Custom Component Overrides
+  Utility classes are handled by Tailwind CDN in index.html for this environment.
+*/
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #050505;
+  color: #00f3ff;
+  font-family: 'Roboto Mono', monospace;
+  overflow: hidden;
+  height: 100vh;
+  width: 100vw;
+}
+
+.font-orbitron {
+  font-family: 'Orbitron', sans-serif;
+}
+
+.glass-panel {
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 243, 255, 0.15);
+  box-shadow: 0 0 30px rgba(0, 243, 255, 0.05);
+}
+
+.neon-text-cyan {
+  color: #00f3ff;
+  text-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
+}
+
+.neon-border-cyan {
+  border-color: #00f3ff;
+  box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
+}
+
+.scanline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: rgba(0, 243, 255, 0.1);
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 9999;
+  animation: scanline-anim 10s linear infinite;
+}
+
+@keyframes scanline-anim {
+  0% { transform: translateY(-100vh); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -100;
+  }
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.3);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 243, 255, 0.2);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 243, 255, 0.5);
+}
+
+/* Fix for Recharts ResponsiveContainer inside hidden/animated parents */
+.recharts-responsive-container {
+  min-width: 0;
+  min-height: 0;
+}

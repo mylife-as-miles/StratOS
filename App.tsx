@@ -64,7 +64,7 @@ const App: React.FC = () => {
   return (
     <div className="h-screen w-screen flex flex-col p-4 gap-4 bg-[#020202] text-cyan-50 selection:bg-cyan-500 selection:text-black">
       {/* Top Header Bar */}
-      <header className="flex justify-between items-center border-b border-cyan-900 pb-2">
+      <header className="flex justify-between items-center border-b border-cyan-900 pb-2 flex-shrink-0">
         <div className="flex items-center gap-4">
           <h1 className="font-orbitron text-2xl font-black tracking-tighter neon-text-cyan">
             STRAT<span className="text-white">OS</span>
@@ -86,47 +86,53 @@ const App: React.FC = () => {
       </header>
 
       {/* Main Content Area */}
-      <div className="flex-1 grid grid-cols-12 gap-4 overflow-hidden">
+      <div className="flex-1 grid grid-cols-12 gap-4 overflow-hidden min-h-0">
         
         {/* Left Column: Telemetry & Widgets */}
-        <aside className="col-span-3 flex flex-col gap-4 overflow-y-auto pr-2">
-          <CyberCard title="Fuel Load" subtitle="Sprint Burndown" variant="cyan">
-            <FuelGauge value={telemetry.fuelLevel} label="Remaining" unit="%" />
-          </CyberCard>
+        <aside className="col-span-3 flex flex-col gap-4 overflow-y-auto pr-2 custom-scrollbar">
+          <div className="flex-shrink-0">
+            <CyberCard title="Fuel Load" subtitle="Sprint Burndown" variant="cyan">
+              <FuelGauge value={telemetry.fuelLevel} label="Remaining" unit="%" />
+            </CyberCard>
+          </div>
 
-          <CyberCard title="Tyre Degradation" subtitle="Avg Ticket Age" variant={telemetry.tyreWear > 70 ? 'magenta' : 'cyan'}>
-            <div className="flex items-end gap-2 mb-2">
-              <span className={`text-3xl font-orbitron font-bold ${telemetry.tyreWear > 70 ? 'text-pink-500' : 'text-white'}`}>
-                {telemetry.tyreWear}%
-              </span>
-              <span className="text-[10px] text-white/40 mb-1 uppercase">Wear Rating</span>
-            </div>
-            <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
-              <div 
-                className={`h-full transition-all duration-1000 ${telemetry.tyreWear > 70 ? 'bg-pink-500' : 'bg-cyan-500'}`} 
-                style={{ width: `${telemetry.tyreWear}%` }}
-              ></div>
-            </div>
-            <p className="text-[10px] mt-2 text-white/60 italic">
-              {telemetry.tyreWear > 60 ? "BOX BOX BOX! Heavy technical debt detected." : "Tyres holding. Optimal performance maintained."}
-            </p>
-          </CyberCard>
+          <div className="flex-shrink-0">
+            <CyberCard title="Tyre Degradation" subtitle="Avg Ticket Age" variant={telemetry.tyreWear > 70 ? 'magenta' : 'cyan'}>
+              <div className="flex items-end gap-2 mb-2">
+                <span className={`text-3xl font-orbitron font-bold ${telemetry.tyreWear > 70 ? 'text-pink-500' : 'text-white'}`}>
+                  {telemetry.tyreWear}%
+                </span>
+                <span className="text-[10px] text-white/40 mb-1 uppercase">Wear Rating</span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full transition-all duration-1000 ${telemetry.tyreWear > 70 ? 'bg-pink-500' : 'bg-cyan-500'}`} 
+                  style={{ width: `${telemetry.tyreWear}%` }}
+                ></div>
+              </div>
+              <p className="text-[10px] mt-2 text-white/60 italic leading-tight">
+                {telemetry.tyreWear > 60 ? "BOX BOX BOX! Heavy technical debt detected." : "Tyres holding. Optimal performance maintained."}
+              </p>
+            </CyberCard>
+          </div>
 
-          <CyberCard title="Engine Performance" subtitle="Team Velocity" variant="cyan">
-            <RPMGauge velocity={85} />
-          </CyberCard>
+          <div className="flex-shrink-0">
+            <CyberCard title="Engine Performance" subtitle="Team Velocity" variant="cyan">
+              <RPMGauge velocity={85} />
+            </CyberCard>
+          </div>
 
           {telemetry.drsEnabled && (
-            <div className="bg-green-500/10 border-2 border-green-500 p-2 text-center animate-pulse">
+            <div className="bg-green-500/10 border-2 border-green-500 p-2 text-center animate-pulse flex-shrink-0">
               <span className="font-orbitron font-black text-green-500 tracking-widest text-lg">DRS ENABLED</span>
             </div>
           )}
         </aside>
 
         {/* Center Column: The Track */}
-        <main className="col-span-6 flex flex-col gap-4 relative">
+        <main className="col-span-6 flex flex-col gap-4 relative min-h-0">
           {/* Filters Bar Above TrackMap */}
-          <div className="flex items-center gap-2 mb-1 p-1 glass-panel rounded-sm border-cyan-900/30 bg-black/40">
+          <div className="flex items-center gap-2 mb-1 p-1 glass-panel rounded-sm border-cyan-900/30 bg-black/40 flex-shrink-0">
             {(['All', 'Blocked', 'In Progress', 'Done'] as FilterType[]).map((f) => (
               <button
                 key={f}
@@ -146,7 +152,9 @@ const App: React.FC = () => {
             </div>
           </div>
 
-          <TrackMap tickets={filteredTickets} onTicketClick={handleTicketClick} />
+          <div className="flex-1 min-h-0">
+            <TrackMap tickets={filteredTickets} onTicketClick={handleTicketClick} />
+          </div>
           
           {/* Detailed Ticket Overlay */}
           {selectedTicket && (
@@ -190,7 +198,7 @@ const App: React.FC = () => {
           )}
 
           {/* Bottom Feed: Live Comms */}
-          <div className="glass-panel border-t-2 border-cyan-500 p-3 h-32 overflow-y-auto">
+          <div className="glass-panel border-t-2 border-cyan-500 p-3 h-32 overflow-y-auto custom-scrollbar flex-shrink-0">
             <h4 className="font-orbitron text-[10px] text-cyan-400 mb-2 uppercase tracking-widest">Team Radio / Audit Logs</h4>
             <div className="space-y-1 text-[10px] font-mono">
               <p className="text-white/40"><span className="text-cyan-500">[08:12]</span> PIT_WALL: Sector 1 clear. Lando N. setting purple sectors.</p>
@@ -202,77 +210,81 @@ const App: React.FC = () => {
         </main>
 
         {/* Right Column: AI Strategy & Leaderboard */}
-        <aside className="col-span-3 flex flex-col gap-4 overflow-y-auto pl-2">
-          <CyberCard 
-            title="Race Strategy" 
-            subtitle="Rovo Agent Analysis" 
-            variant={strategyVariant}
-            className={`${strategyBg} transition-all duration-700`}
-            statusIndicator={isLoading ? 'INFO' : (strategy?.priorityLevel === 'CRITICAL' ? 'DANGER' : 'INFO')}
-          >
-            {isLoading ? (
-              <div className="flex flex-col items-center py-10">
-                <div className="relative">
-                   {/* Animated AI PROCESSING Icon */}
-                   <div className="w-16 h-16 border-2 border-cyan-500/10 rounded-full"></div>
-                   <div className="absolute inset-0 w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
-                   <div className="absolute inset-2 w-12 h-12 border-b-2 border-magenta-500 border-l-2 border-l-transparent rounded-full animate-[spin_1.5s_linear_infinite_reverse]"></div>
-                   <div className="absolute inset-5 w-6 h-6 bg-cyan-500/20 rounded-sm animate-pulse flex items-center justify-center">
-                     <div className="w-1 h-1 bg-cyan-500 rounded-full"></div>
-                   </div>
-                </div>
-                <span className="text-[11px] mt-8 font-orbitron animate-pulse text-cyan-400 tracking-widest font-bold">AI PROCESSING TELEMETRY...</span>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-[11px] leading-relaxed text-white/80 border-l-2 border-cyan-500/30 pl-2">
-                  {strategy?.analysis}
-                </p>
-                <div>
-                  <h5 className="text-[10px] font-orbitron uppercase text-cyan-400 mb-2 tracking-tighter">Strategic Pit Instructions:</h5>
-                  <ul className="space-y-2">
-                    {strategy?.recommendations.map((rec, i) => (
-                      <li key={i} className="text-[10px] flex gap-2 items-start group">
-                        <span className="text-cyan-500 transition-transform group-hover:translate-x-1">▶</span>
-                        <span className="text-white/60 leading-tight">{rec}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className={`text-[11px] font-black p-2 text-center rounded bg-black/60 border transition-all duration-700 ${
-                  strategy?.priorityLevel === 'CRITICAL' 
-                    ? 'border-pink-500 text-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.5)]' 
-                    : 'border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(0,243,255,0.2)]'
-                }`}>
-                  MISSION STATUS: {strategy?.priorityLevel}
-                </div>
-              </div>
-            )}
-          </CyberCard>
-
-          <CyberCard title="Driver Standings" subtitle="Top Contributors" variant="cyan">
-            <div className="space-y-3">
-              {[
-                { name: 'Max V.', pts: 42, color: 'text-white' },
-                { name: 'Lewis H.', pts: 38, color: 'text-white/80' },
-                { name: 'Lando N.', pts: 31, color: 'text-white/60' },
-                { name: 'Oscar P.', pts: 25, color: 'text-white/40' },
-              ].map((driver, i) => (
-                <div key={i} className="flex justify-between items-center text-[11px] border-b border-white/5 pb-1 last:border-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-cyan-500 font-orbitron italic w-4">P{i+1}</span>
-                    <span className={driver.color}>{driver.name}</span>
+        <aside className="col-span-3 flex flex-col gap-4 overflow-y-auto pl-2 custom-scrollbar">
+          <div className="flex-shrink-0">
+            <CyberCard 
+              title="Race Strategy" 
+              subtitle="Rovo Agent Analysis" 
+              variant={strategyVariant}
+              className={`${strategyBg} transition-all duration-700`}
+              statusIndicator={isLoading ? 'INFO' : (strategy?.priorityLevel === 'CRITICAL' ? 'DANGER' : 'INFO')}
+            >
+              {isLoading ? (
+                <div className="flex flex-col items-center py-10">
+                  <div className="relative">
+                     {/* Animated AI PROCESSING Icon */}
+                     <div className="w-16 h-16 border-2 border-cyan-500/10 rounded-full"></div>
+                     <div className="absolute inset-0 w-16 h-16 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+                     <div className="absolute inset-2 w-12 h-12 border-b-2 border-magenta-500 border-l-2 border-l-transparent rounded-full animate-[spin_1.5s_linear_infinite_reverse]"></div>
+                     <div className="absolute inset-5 w-6 h-6 bg-cyan-500/20 rounded-sm animate-pulse flex items-center justify-center">
+                       <div className="w-1 h-1 bg-cyan-500 rounded-full"></div>
+                     </div>
                   </div>
-                  <span className="font-orbitron tabular-nums tracking-tighter">{driver.pts}pts</span>
+                  <span className="text-[11px] mt-8 font-orbitron animate-pulse text-cyan-400 tracking-widest font-bold">AI PROCESSING TELEMETRY...</span>
                 </div>
-              ))}
-            </div>
-          </CyberCard>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-[11px] leading-relaxed text-white/80 border-l-2 border-cyan-500/30 pl-2">
+                    {strategy?.analysis}
+                  </p>
+                  <div>
+                    <h5 className="text-[10px] font-orbitron uppercase text-cyan-400 mb-2 tracking-tighter">Strategic Pit Instructions:</h5>
+                    <ul className="space-y-2">
+                      {strategy?.recommendations.map((rec, i) => (
+                        <li key={i} className="text-[10px] flex gap-2 items-start group">
+                          <span className="text-cyan-500 transition-transform group-hover:translate-x-1">▶</span>
+                          <span className="text-white/60 leading-tight">{rec}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className={`text-[11px] font-black p-2 text-center rounded bg-black/60 border transition-all duration-700 ${
+                    strategy?.priorityLevel === 'CRITICAL' 
+                      ? 'border-pink-500 text-pink-500 shadow-[0_0_20px_rgba(236,72,153,0.5)]' 
+                      : 'border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(0,243,255,0.2)]'
+                  }`}>
+                    MISSION STATUS: {strategy?.priorityLevel}
+                  </div>
+                </div>
+              )}
+            </CyberCard>
+          </div>
+
+          <div className="flex-shrink-0">
+            <CyberCard title="Driver Standings" subtitle="Top Contributors" variant="cyan">
+              <div className="space-y-3">
+                {[
+                  { name: 'Max V.', pts: 42, color: 'text-white' },
+                  { name: 'Lewis H.', pts: 38, color: 'text-white/80' },
+                  { name: 'Lando N.', pts: 31, color: 'text-white/60' },
+                  { name: 'Oscar P.', pts: 25, color: 'text-white/40' },
+                ].map((driver, i) => (
+                  <div key={i} className="flex justify-between items-center text-[11px] border-b border-white/5 pb-1 last:border-0">
+                    <div className="flex items-center gap-2">
+                      <span className="text-cyan-500 font-orbitron italic w-4">P{i+1}</span>
+                      <span className={driver.color}>{driver.name}</span>
+                    </div>
+                    <span className="font-orbitron tabular-nums tracking-tighter">{driver.pts}pts</span>
+                  </div>
+                ))}
+              </div>
+            </CyberCard>
+          </div>
         </aside>
       </div>
 
       {/* Footer Footer Status */}
-      <footer className="h-6 flex justify-between items-center text-[8px] font-orbitron text-white/20 uppercase tracking-[0.2em]">
+      <footer className="h-6 flex justify-between items-center text-[8px] font-orbitron text-white/20 uppercase tracking-[0.2em] flex-shrink-0">
         <div>Satellite Uplink: <span className="text-green-500 animate-pulse">Active</span></div>
         <div className="flex gap-4">
           <span>Packet Loss: 0.00%</span>
